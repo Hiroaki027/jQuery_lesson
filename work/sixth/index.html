@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../common/css/reset.css">
+  <link rel="stylesheet" href="../../common/css/base.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Document</title>
+</head>
+<body>
+  <div class="wrapper" id="wrapper">
+    <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+  </div>
+  <script src="../../common/js/jquery.js"></script>
+  <script>
+    // 回答はここに書いてね
+    $(function(){
+    $('#pokemon_search').click(pokemon_find);
+      // 「捕まえる」失敗時の画面表示
+    let failHtml =
+    `
+      <p class="text">逃げられてしまった...</p>
+      <button class="btn mt" data-js="reset">戻る</button>
+    `;
+
+    // 「ポケモンを探す」後の画面表示
+    let encountHtml =
+    `
+      <p class="name"></p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <div>
+        <button class="btn" id="catch">捕まえる</button>
+        <button class="btn" data-js="reset">逃げる</button>
+      </div>
+    `;
+
+    // 「捕まえる」成功時の画面表示
+    let doneHtml =
+    `
+      <p class="name">ゲットしました</p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <button class="btn" data-js="reset">戻る</button>
+    `;
+    let resetHtml = '<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>';
+
+    let errorMessage =
+    `
+      <p class="error">
+        接続ができませんでした。画面に戻り、再接続をお願いいたします。
+      </p>
+      <button class="btn mt" data-js="reset">戻る</button>
+    `;
+    
+    function reset() {
+      $('#wrapper').html(resetHtml);
+      $('#pokemon_search').click(pokemon_find);
+    };
+
+    function pokemon_find() {
+      let randomNumbers = Math.floor(Math.random() * 150) + 1;
+      let randomBalls = Math.floor(Math.random() * 15) + 1;
+      $.ajax({
+        url: 'https://pokeapi.co/api/v2/pokemon/' + randomNumbers,
+        method: 'GET'
+      }).done(function(res) {
+        let default_image = res.sprites.front_default;
+        $('#wrapper').html(encountHtml);
+        $('.img').attr('src',default_image);
+        $('.btn').click(reset);
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon-species/' + randomNumbers + '/'
+        }).done(function(res) {
+          let japanese_name = res.names[0].name;
+          $('.name').text(japanese_name);
+          $('#catch').click(capture_challenge);
+          function capture_challenge(res){
+            $.ajax({
+              url: 'https://pokeapi.co/api/v2/item/' + randomBalls
+            }).done(function(res){
+              console.log(res);
+              let poke_ball = res.sprites.default;
+              if (Math.random() > 0.5) {
+                $('#wrapper').html(doneHtml);
+                $('.img').attr('src',poke_ball);
+                $('.btn').click(reset);
+              } else {
+                $('#wrapper').html(failHtml);
+                $('.btn').click(reset);
+              };
+            });
+          }
+        });
+      }).fail(function(err) {
+        console.log(err);
+        $('#wrapper').html(errorMessage);
+        $('.btn').click(reset);
+      });
+    };
+  });
+  </script>
+</body>
+</html>
