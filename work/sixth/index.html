@@ -47,8 +47,11 @@
       </div>
       <button class="btn" data-js="reset">戻る</button>
     `;
+    
+    //「戻る」、「逃げる」後の画面表示
     let resetHtml = '<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>';
 
+    //Ajax通信失敗時の画面表示
     let errorMessage =
     `
       <p class="error">
@@ -63,21 +66,29 @@
     };
 
     function pokemon_find() {
-      let randomNumbers = Math.floor(Math.random() * 150) + 1;
-      let randomBalls = Math.floor(Math.random() * 15) + 1;
+      const randomNumbers = Math.floor(Math.random() * 150) + 1; //1~151の数字をランダムに生成(ポケモンのid用)
+      const randomBalls = Math.floor(Math.random() * 15) + 1; // 1~16の数字をランダムに生成(アイテムのid用)
+      const shinyEncount = Math.floor(Math.random() * 10); //0~9の数字をランダムに生成(色違いとの遭遇確率用)
       $.ajax({
         url: 'https://pokeapi.co/api/v2/pokemon/' + randomNumbers,
-        method: 'GET'
+        type: 'GET'
+        //.ajaxリクエストを送信。url:で送信先のURLを指定し、type:でhttpメソッドを指定(method:でも可能)
       }).done(function(res) {
-        let default_image = res.sprites.front_default;
+        //.doneメソッドで直前の処理の後に実行したい処理を記述。逆の場合は.whenメソッド
+        let default_image = res.sprites.front_default; //通常個体のポケモン画像(res変数からspritesプロパティのfront_defaultを呼び出し)
+        let shiny_image = res.sprites.front_shiny; //色違い個体のポケモン画像
         $('#wrapper').html(encountHtml);
-        $('.img').attr('src',default_image);
+        //.htmlメソッドで対象の要素に引数のhtml文字列をセット
+        shinyEncount < 2 ? $('.img').attr('src',shiny_image) : $('.img').attr('src',default_image);
+        //.attrメソッドを用いてsrc属性に画像付与 attrは(attribute=属性)
+        // 三項演算子を用いて条件がtrueなら色違い、falseなら通常画像
         $('.btn').click(reset);
         $.ajax({
           url: 'https://pokeapi.co/api/v2/pokemon-species/' + randomNumbers + '/'
         }).done(function(res) {
           let japanese_name = res.names[0].name;
           $('.name').text(japanese_name);
+          //.textメソッドで対象の要素に引数のテキスト文字列をセット
           $('#catch').click(capture_challenge);
           function capture_challenge(res){
             $.ajax({
@@ -86,6 +97,7 @@
               console.log(res);
               let poke_ball = res.sprites.default;
               if (Math.random() > 0.5) {
+                //.randomメソッドで0.5を超えるときを条件として指定 .randomメソッドは0以上1未満の数字を返す
                 $('#wrapper').html(doneHtml);
                 $('.img').attr('src',poke_ball);
                 $('.btn').click(reset);
