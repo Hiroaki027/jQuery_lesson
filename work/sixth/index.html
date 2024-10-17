@@ -94,7 +94,6 @@
             $.ajax({
               url: 'https://pokeapi.co/api/v2/item/' + randomBalls
             }).done(function(res){
-              console.log(res);
               let poke_ball = res.sprites.default;
               if (Math.random() > 0.5) {
                 //.randomメソッドで0.5を超えるときを条件として指定 .randomメソッドは0以上1未満の数字を返す

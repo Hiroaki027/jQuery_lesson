@@ -93,12 +93,14 @@
           //valメソッドで$(this)=$('select')を対象にしたvalue属性の値を取得
           $('.list li').each(function() {
             //eachメソッドで引数に関数を指定今回は無名関数
-            let targetData = $(this).data('category-type');
+            let categoryData = $(this).data('category-type');
             //$(this)=$('.list li')でlistクラスのliタグ全てを対象にdataメソッドdata-後のcategory-typeプロパティの値を取得
             if (targetValue === 'all') {
               $(this).show();
+              return
               //showメソッドでtargetValueが'all'の時に対象の$(this)を表示
-            } else if(targetData === targetValue){
+            }
+            if(categoryData === targetValue){
               $(this).show();
               //条件に当てはまる$(this)を表示
             } else {

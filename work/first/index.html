@@ -52,36 +52,36 @@
      // 第1問  id='q1'の要素の文字色を赤色にせよ。
       $('#q1').css('color','red');
      // 第2問  id='q2'の要素をクリックしたら背景色をピンクにせよ。
-      $('#q2').click(function() {
+      $('#q2').click(function() { //クリックイベントを関数内にて処理内容を記述
         $(this).css('background-color','pink');
       });
      // 第3問  id='q3'の要素をクリックしたらこの要素の前後とこの要素内の前後にテキストを挿入せよ。
       $('#q3').click(function() {
-        $(this).prepend('Hello')
-                .append('World')
-                .before('Goodbye')
-                .after('World');
+        $(this).prepend('Hello') //.prependメソッドは要素内の前に引数を挿入
+                .append('World') //.appendメソッドは要素内の後に引数を挿入
+                .before('Goodbye') //.beforeメソッドは要素の前に引数を挿入
+                .after('World'); //.afterメソッドは要素の後に引数を挿入
       });
      // 第4問  id='q4'の要素をクリックしたらこの要素にlargeというクラスを付与せよ。
       $('#q4').click(function(){
-        $(this).addClass('large');
+        $(this).addClass('large'); //addClassメソッドは引数をクラスに追加
       });
      // 第5問  id='q5'の要素をクリックしたらこの要素を2秒かけてmargin-topとmargin-leftを100pxの位置に移動させよ。
       $('#q5').click(function(){
-        $(this).animate({
+        $(this).animate({ //.animateメソッドはcssの値をして、アニメーションを表現、2000はアニメーション時間(ミリ秒)
           'marginTop': 100,
           'marginLeft': 100
         }, 2000);
       });
      // 第6問  id='q6'の子要素をクリックしたら、その要素のインデックス（何番目か）をconsole.log()とalert()を用いて表示させよ。
-      $('#q6').find('li').click(function() {
-        var targetNum = $(this).index();
+      $('#q6').find('li').click(function() { //findメソッドで引数で指定した子孫要素全てを対象にする　※.childrenは子要素だけ
+        var targetNum = $(this).index(); //.indexメソッドで数字を戻り値として取得
         console.log(targetNum);
         alert(targetNum);
       });
      // 第7問  id='q7'の要素をクリックしたらこの要素に設定してあるdata属性をconsoleに表示せよ。
       $('#q7').click(function(){
-        var text = $(this).data('text');
+        var text = $(this).data('text'); //
         console.log(text);
       });
   });
