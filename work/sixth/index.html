@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../common/css/reset.css">
+  <link rel="stylesheet" href="../../common/css/base.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Document</title>
+</head>
+<body>
+  <div class="wrapper" id="wrapper">
+    <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+  </div>
+  <script src="../../common/js/jquery.js"></script>
+  <script>
+    // 回答はここに書いてね
+    $(function(){
+    $('#pokemon_search').click(pokemon_find);
+      // 「捕まえる」失敗時の画面表示
+    let failHtml =
+    `
+      <p class="text">逃げられてしまった...</p>
+      <button class="btn mt" data-js="reset">戻る</button>
+    `;
+
+    // 「ポケモンを探す」後の画面表示
+    let encountHtml =
+    `
+      <p class="name"></p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <div>
+        <button class="btn" id="catch">捕まえる</button>
+        <button class="btn" data-js="reset">逃げる</button>
+      </div>
+    `;
+
+    // 「捕まえる」成功時の画面表示
+    let doneHtml =
+    `
+      <p class="name">ゲットしました</p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <button class="btn" data-js="reset">戻る</button>
+    `;
+    
+    //「戻る」、「逃げる」後の画面表示
+    let resetHtml = '<button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>';
+
+    //Ajax通信失敗時の画面表示
+    let errorMessage =
+    `
+      <p class="error">
+        接続ができませんでした。画面に戻り、再接続をお願いいたします。
+      </p>
+      <button class="btn mt" data-js="reset">戻る</button>
+    `;
+    
+    function reset() {
+      $('#wrapper').html(resetHtml);
+      $('#pokemon_search').click(pokemon_find);
+    };
+
+    function pokemon_find() {
+      const randomNumbers = Math.floor(Math.random() * 150) + 1; //1~151の数字をランダムに生成(ポケモンのid用)
+      const randomBalls = Math.floor(Math.random() * 15) + 1; // 1~16の数字をランダムに生成(アイテムのid用)
+      const shinyEncount = Math.floor(Math.random() * 10); //0~9の数字をランダムに生成(色違いとの遭遇確率用)
+      $.ajax({
+        url: 'https://pokeapi.co/api/v2/pokemon/' + randomNumbers,
+        type: 'GET'
+        //.ajaxリクエストを送信。url:で送信先のURLを指定し、type:でhttpメソッドを指定(method:でも可能)
+      }).done(function(res) {
+        //.doneメソッドで直前の処理の後に実行したい処理を記述。逆の場合は.whenメソッド
+        let default_image = res.sprites.front_default; //通常個体のポケモン画像(res変数からspritesプロパティのfront_defaultを呼び出し)
+        let shiny_image = res.sprites.front_shiny; //色違い個体のポケモン画像
+        $('#wrapper').html(encountHtml);
+        //.htmlメソッドで対象の要素に引数のhtml文字列をセット
+        shinyEncount < 2 ? $('.img').attr('src',shiny_image) : $('.img').attr('src',default_image);
+        //.attrメソッドを用いてsrc属性に画像付与 attrは(attribute=属性)
+        // 三項演算子を用いて条件がtrueなら色違い、falseなら通常画像
+        $('.btn').click(reset);
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon-species/' + randomNumbers + '/'
+        }).done(function(res) {
+          let japanese_name = res.names[0].name;
+          $('.name').text(japanese_name);
+          //.textメソッドで対象の要素に引数のテキスト文字列をセット
+          $('#catch').click(capture_challenge);
+          function capture_challenge(res){
+            $.ajax({
+              url: 'https://pokeapi.co/api/v2/item/' + randomBalls
+            }).done(function(res){
+              let poke_ball = res.sprites.default;
+              if (Math.random() > 0.5) {
+                //.randomメソッドで0.5を超えるときを条件として指定 .randomメソッドは0以上1未満の数字を返す
+                $('#wrapper').html(doneHtml);
+                $('.img').attr('src',poke_ball);
+                $('.btn').click(reset);
+              } else {
+                $('#wrapper').html(failHtml);
+                $('.btn').click(reset);
+              };
+            });
+          }
+        });
+      }).fail(function(err) {
+        console.log(err);
+        $('#wrapper').html(errorMessage);
+        $('.btn').click(reset);
+      });
+    };
+  });
+  </script>
+</body>
+</html>
